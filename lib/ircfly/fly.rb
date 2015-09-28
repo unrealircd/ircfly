@@ -7,22 +7,23 @@ module Ircfly
     def initialize(server: 'irc.test.com', nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot', swarm: nil)
       @swarm = swarm
       @logger = Logger.new
-      @bot = Cinch::Bot.new do
-        configure do |c|
-          c.server = server
-          c.nick = nick
-          c.ssl = ssl if ssl
-          c.password = password if password != ''
-          c.realname = name
-          c.user = user
-          c.reconnect = false
-        end
+      @bot = Cinch::Bot.new
+      @bot.loggers << @logger
 
-        loggers << @logger
+      @bot.configure do |c|
+        c.server = server
+        c.nick = nick
+        c.ssl = ssl if ssl
+        c.password = password if password != ''
+        c.realname = name
+        c.user = user
+        c.reconnect = false
+      end
 
-        on :connect do |m|
-          @swarm.ready(self)
-        end
+      bot = self
+
+      @bot.on :connect do
+        swarm.ready(bot)
       end
     end
 
@@ -44,10 +45,8 @@ module Ircfly
 
 
     def method_missing(name, *args, &block)
-        @bot.public_send(name, args)
+      @bot.public_send(name, args)
     end
-
-
 
     # Methods for expectations
     def messages
@@ -82,7 +81,7 @@ module Ircfly
       attr_reader :received
 
       def initialize
-        super nil
+        super $stdout
         @mutex = Mutex.new
         @received = Array.new
       end

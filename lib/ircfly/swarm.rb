@@ -8,8 +8,8 @@ module Ircfly
       @bots_ready = Array.new
     end
 
-    def fly(server: 'irc.test.com', nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot')
-      bot = Fly.new(server: server, nick: nick, ssl: ssl, password: password, name: name, user: user, swarm: self)
+    def fly(server: 'irc.test.com', port: 6667, nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot')
+      bot = Fly.new(server: server, port: port, nick: nick, ssl: ssl, password: password, name: name, user: user, swarm: self)
       @bots << bot
       bot
     end

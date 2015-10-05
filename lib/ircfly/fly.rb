@@ -4,7 +4,7 @@ module Ircfly
   class Fly
     COMMAND_WAIT = 1
 
-    def initialize(server: 'irc.test.com', port: 6667 nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot', swarm: nil)
+    def initialize(server: 'irc.test.com', port: 6667, nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot', swarm: nil)
       @swarm = swarm
       @logger = Logger.new
       @bot = Cinch::Bot.new

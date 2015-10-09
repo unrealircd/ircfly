@@ -1,11 +1,14 @@
 require 'cinch'
 require 'delegate'
+require 'securerandom'
+require 'thread'
 
-module Ircfly < SimpleDelegator
-  class Fly
+module Ircfly
+  class Fly < SimpleDelegator
     def initialize(server: 'irc.test.com', port: 6667, nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot', swarm: nil)
       @swarm = swarm
       @logger = Logger.new
+      @pong_mutex = Mutex.new
       @bot = Cinch::Bot.new
       @bot.loggers << @logger
 
@@ -26,6 +29,10 @@ module Ircfly < SimpleDelegator
       @bot.on :connect do
         swarm.ready(bot)
       end
+
+      @bot.on :pong do |msg|
+        bot.pong_received(msg)
+      end
     end
 
     # Lifecycle control
@@ -37,6 +44,24 @@ module Ircfly < SimpleDelegator
 
     def wait
       @thread.join
+    end
+
+    def pong_received(message)
+      ack_received = false
+      @pong_mutex.synchronize do
+        if message.raw.include?(@pong_token)
+          @pong_token = nil
+          ack_received = true
+        end
+      end
+      @swarm.fence_complete(self) if ack_received
+    end
+
+    def fence
+      @pong_mutex.synchronize do
+        @pong_token = SecureRandom.uuid
+        send("PING :#{@pong_token}")
+      end
     end
 
     # Sending IRC messages

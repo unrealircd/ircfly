@@ -6,6 +6,8 @@ module Ircfly
     def initialize
       @bots = Array.new
       @bots_ready = Array.new
+      @fence_complete = Array.new
+      @fence_mutex = Mutex.new
     end
 
     def fly(server: 'irc.test.com', port: 6667, nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot')
@@ -16,6 +18,27 @@ module Ircfly
 
     def perform(&block)
       @execute = block
+    end
+
+    def fence
+      return unless ready?
+      @fence_mutex.synchronize do
+        @fence_waiting = Array.new
+      end
+
+      @bots.each do |b|
+        b.fence()
+      end
+
+      sleep(1) until @fence_mutex.synchronize { @fence_complete.count == @bots.count }
+    end
+
+    def fence_complete(bot)
+      @fence_mutex.synchronize { @fence_complete << bot }
+    end
+
+    def ready?
+      @bots.count == @bots_ready.count
     end
 
     def ready(bot)

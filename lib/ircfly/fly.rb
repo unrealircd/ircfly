@@ -1,6 +1,7 @@
 require 'cinch'
+require 'delegate'
 
-module Ircfly
+module Ircfly < SimpleDelegator
   class Fly
     COMMAND_WAIT = 1
 
@@ -22,6 +23,7 @@ module Ircfly
       end
 
       bot = self
+      super(@bot)
 
       @bot.on :connect do
         swarm.ready(bot)
@@ -44,10 +46,6 @@ module Ircfly
         @bot.irc.send(message)
     end
 
-
-    def method_missing(name, *args, &block)
-      @bot.public_send(name, args)
-    end
 
     # Methods for expectations
     def messages

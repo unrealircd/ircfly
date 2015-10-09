@@ -3,8 +3,6 @@ require 'delegate'
 
 module Ircfly < SimpleDelegator
   class Fly
-    COMMAND_WAIT = 1
-
     def initialize(server: 'irc.test.com', port: 6667, nick: 'bot', ssl: false, password: '', name: 'Bot', user: 'Bot', swarm: nil)
       @swarm = swarm
       @logger = Logger.new

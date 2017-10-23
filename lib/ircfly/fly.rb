@@ -21,6 +21,7 @@ module Ircfly
         c.realname = name
         c.user = user
         c.reconnect = false
+        c.messages_per_second = 100
       end
 
       bot = self

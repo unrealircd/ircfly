@@ -30,7 +30,7 @@ module Ircfly
         b.fence()
       end
 
-      sleep(1) until @fence_mutex.synchronize { @fence_complete.count == @bots.count }
+      sleep(0.1) until @fence_mutex.synchronize { @fence_complete.count == @bots.count }
     end
 
     def fence_complete(bot)
